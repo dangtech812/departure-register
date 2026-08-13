@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Departure Register — August 2026 · May 2027</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #F5F3EE;
+    --panel: #FFFFFF;
+    --ink: #1B2430;
+    --ink-soft: #5B6472;
+    --ink-faint: #ABB1B9;
+    --line: #E1DDD3;
+    --accent: #235A63;
+    --accent-soft: #E7EFEE;
+    --weekend: #EDEAE2;
+    --weekend-line: #DAD5C7;
+    --danger: #B4436C;
+    --holiday: #C9A227;
+    --holiday-soft: #FBF3DC;
+    --radius: 12px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{
+    display:grid;
+    grid-template-columns: 340px 1fr;
+    gap:0;
+    min-height:100vh;
+  }
+  /* SIDEBAR */
+  .sidebar{
+    background:var(--panel);
+    border-right:1px solid var(--line);
+    padding:28px 24px 40px;
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+    position:sticky;
+    top:0;
+    align-self:start;
+    height:100vh;
+    overflow-y:auto;
+  }
+  .brand{
+    border-bottom:2px solid var(--ink);
+    padding-bottom:14px;
+  }
+  .brand h1{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:19px;
+    font-weight:700;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .brand-sub{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:4px;
+  }
+  form{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    background:var(--accent-soft);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px;
+  }
+  .field{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+  }
+  .field label{
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .field input{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13.5px;
+    padding:9px 10px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    background:#fff;
+    color:var(--ink);
+  }
+  .field input[type="text"]{
+    font-family:'Inter', sans-serif;
+    font-weight:500;
+  }
+  .field input:focus{
+    outline:2px solid var(--accent);
+    outline-offset:1px;
+  }
+  .row2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  .btn-add{
+    margin-top:2px;
+    background:var(--ink);
+    color:#fff;
+    border:none;
+    border-radius:6px;
+    padding:11px 14px;
+    font-weight:600;
+    font-size:13.5px;
+    cursor:pointer;
+    transition:background .15s ease;
+  }
+  .btn-add:hover{ background:var(--accent); }
+  .error-msg{
+    font-size:12px;
+    color:var(--danger);
+    font-weight:500;
+    display:none;
+  }
+  .duration-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    align-self:flex-start;
+    background:var(--panel);
+    border:1px solid var(--accent);
+    color:var(--accent);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    font-weight:600;
+    padding:5px 10px;
+    border-radius:20px;
+    margin-top:-4px;
+  }
+  .duration-badge.warn{
+    border-color:var(--danger);
+    color:var(--danger);
+  }
+
+  .swatch-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:7px;
+    padding:2px 0;
+  }
+  .swatch-btn{
+    width:22px;
+    height:22px;
+    border-radius:50%;
+    border:2px solid transparent;
+    padding:0;
+    cursor:pointer;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);
+  }
+  .swatch-btn.selected{
+    border-color:var(--ink);
+    transform:scale(1.12);
+  }
+
+  .list-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin:6px 0 -6px;
+  }
+  .list-title{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .btn-reset{
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--danger);
+    font-size:11px;
+    font-weight:600;
+    padding:5px 9px;
+    border-radius:6px;
+    cursor:pointer;
+  }
+  .btn-reset:hover{ background:var(--danger); color:#fff; border-color:var(--danger); }
+
+  .people-list{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    overflow-y:auto;
+    padding-right:2px;
+  }
+  .person-card{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:9px 10px;
+    background:#fff;
+  }
+  .person-card.editing{
+    flex-direction:column;
+    align-items:stretch;
+    gap:9px;
+    padding:12px;
+    border-color:var(--accent);
+  }
+  .swatch{
+    width:11px;
+    height:11px;
+    border-radius:3px;
+    flex:none;
+  }
+  .person-info{
+    flex:1;
+    min-width:0;
+  }
+  .person-name{
+    font-size:13.5px;
+    font-weight:600;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .person-dates{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+  }
+  .person-days{
+    font-weight:700;
+    color:var(--accent);
+  }
+  .card-actions{
+    display:flex;
+    gap:2px;
+    flex:none;
+  }
+  .icon-btn{
+    border:none;
+    background:transparent;
+    color:var(--ink-soft);
+    cursor:pointer;
+    font-size:14px;
+    line-height:1;
+    padding:4px 6px;
+    border-radius:4px;
+  }
+  .icon-btn:hover{ background:var(--accent-soft); color:var(--accent); }
+  .icon-btn.del-btn:hover{ color:var(--danger); background:var(--accent-soft); }
+  .empty-note{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    font-style:italic;
+  }
+
+  .edit-label{
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-bottom:2px;
+  }
+  .edit-error{
+    font-size:11.5px;
+    color:var(--danger);
+    font-weight:500;
+  }
+  .edit-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:8px;
+    margin-top:2px;
+  }
+  .btn-save-edit, .btn-cancel-edit{
+    font-size:12px;
+    font-weight:600;
+    padding:7px 12px;
+    border-radius:6px;
+    cursor:pointer;
+  }
+  .btn-save-edit{
+    background:var(--accent);
+    color:#fff;
+    border:1px solid var(--accent);
+  }
+  .btn-cancel-edit{
+    background:#fff;
+    color:var(--ink-soft);
+    border:1px solid var(--line);
+  }
+
+  .legend-note{
+    padding-top:14px;
+    border-top:1px solid var(--line);
+    font-size:11.5px;
+    color:var(--ink-soft);
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .legend-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .legend-swatch{
+    width:22px;
+    height:11px;
+    background:repeating-linear-gradient(135deg, var(--weekend-line) 0 3px, var(--weekend) 3px 7px);
+    border-radius:3px;
+    flex:none;
+    border:1px solid var(--weekend-line);
+  }
+  .legend-swatch.holiday{
+    background:var(--holiday);
+    border:1px solid var(--holiday);
+  }
+  .save-note{
+    margin-top:auto;
+    font-size:10.5px;
+    color:var(--ink-faint);
+    font-style:italic;
+  }
+
+  /* MAIN */
+  .main{
+    padding:28px 36px 60px;
+  }
+  .main-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:20px;
+    border-bottom:1px solid var(--line);
+  }
+  .tabs{
+    display:flex;
+    gap:18px;
+  }
+  .tab-btn{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:16px;
+    background:transparent;
+    border:none;
+    padding:6px 2px 12px;
+    color:var(--ink-soft);
+    cursor:pointer;
+    border-bottom:3px solid transparent;
+    margin-bottom:-1px;
+  }
+  .tab-btn.active{
+    color:var(--ink);
+    border-bottom-color:var(--accent);
+  }
+  .main-header span.count-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    color:var(--ink-soft);
+  }
+  .months-grid{
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap:24px;
+    max-width:1500px;
+  }
+
+  .month-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:22px 24px 20px;
+  }
+  .month-title{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:22px;
+    margin-bottom:14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+  }
+  .month-title small{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:500;
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+  .weekdays{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    font-size:12px;
+    font-weight:700;
+    color:var(--ink-soft);
+    text-align:center;
+    margin-bottom:6px;
+    letter-spacing:.04em;
+  }
+
+  .week-row{
+    position:relative;
+    margin-bottom:4px;
+  }
+  .weekend-underlay{
+    position:absolute;
+    inset:0;
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    z-index:0;
+    border-radius:6px;
+    overflow:hidden;
+  }
+  .weekend-underlay .col{
+    height:100%;
+  }
+  .weekend-underlay .col.weekend{
+    background:repeating-linear-gradient(135deg, var(--weekend-line) 0 3px, var(--weekend) 3px 7px);
+  }
+
+  .date-row{
+    position:relative;
+    z-index:1;
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    padding-top:4px;
+  }
+  .date-cell{
+    text-align:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13.5px;
+    padding:2px 0 5px;
+    color:var(--ink);
+  }
+  .date-cell.outside{ color:var(--ink-faint); }
+  .date-cell.today{ font-weight:700; }
+  .date-cell.today span{
+    display:inline-block;
+    background:var(--accent);
+    color:#fff;
+    border-radius:50%;
+    width:23px;
+    height:23px;
+    line-height:23px;
+  }
+
+  .holiday-area{
+    position:relative;
+    z-index:1;
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    grid-auto-rows:15px;
+    row-gap:2px;
+    min-height:2px;
+  }
+  .holiday-bar{
+    display:flex;
+    align-items:center;
+    padding:0 6px;
+    font-size:9.5px;
+    font-weight:700;
+    font-family:'Inter', sans-serif;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    border-radius:3px;
+    line-height:15px;
+    background:var(--holiday);
+    color:#3A2F05;
+    letter-spacing:.01em;
+  }
+  .holiday-bar.cap-left{ border-top-left-radius:3px; border-bottom-left-radius:3px; }
+  .holiday-bar.open-left{ border-top-left-radius:0; border-bottom-left-radius:0; margin-left:-1px; }
+  .holiday-bar.cap-right{ border-top-right-radius:3px; border-bottom-right-radius:3px; }
+  .holiday-bar.open-right{ border-top-right-radius:0; border-bottom-right-radius:0; margin-right:-1px; }
+
+  .events-area{
+    position:relative;
+    z-index:1;
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    grid-auto-rows:24px;
+    row-gap:3px;
+    padding-bottom:4px;
+    margin-top:3px;
+    min-height:6px;
+  }
+  .event-bar{
+    display:flex;
+    align-items:center;
+    padding:0 8px;
+    font-size:12px;
+    font-weight:600;
+    font-family:'Inter', sans-serif;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    border-radius:4px;
+    line-height:24px;
+    cursor:default;
+  }
+  .event-bar.cap-left{ border-top-left-radius:4px; border-bottom-left-radius:4px; }
+  .event-bar.open-left{ border-top-left-radius:0; border-bottom-left-radius:0; margin-left:-1px; }
+  .event-bar.cap-right{ border-top-right-radius:4px; border-bottom-right-radius:4px; }
+  .event-bar.open-right{ border-top-right-radius:0; border-bottom-right-radius:0; margin-right:-1px; }
+  .event-more{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+    padding:0 8px;
+    line-height:24px;
+  }
+
+  /* OVERVIEW TAB */
+  .overview-stats{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:16px;
+    max-width:1150px;
+    margin-bottom:26px;
+  }
+  .stat-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px 18px;
+  }
+  .stat-card .stat-label{
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+  }
+  .stat-card .stat-value{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:26px;
+    font-weight:700;
+  }
+  .stat-card .stat-sub{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-top:3px;
+  }
+
+  .timeline-block{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px 22px;
+    max-width:1150px;
+    margin-bottom:26px;
+  }
+  .timeline-block h3{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:15px;
+    margin:0 0 14px;
+  }
+  .timeline-bar{
+    display:flex;
+    height:46px;
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--line);
+  }
+  .timeline-seg{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    font-weight:700;
+    border-right:1px solid rgba(255,255,255,0.35);
+    min-width:0;
+    overflow:hidden;
+    white-space:nowrap;
+  }
+  .timeline-scale{
+    display:flex;
+    margin-top:6px;
+  }
+  .timeline-scale .tick{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    color:var(--ink-soft);
+    text-align:center;
+    border-right:1px dashed var(--line);
+    padding-top:4px;
+  }
+  .timeline-scale .tick:last-child{ border-right:none; }
+  .timeline-legend{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:14px;
+    font-size:11px;
+    color:var(--ink-soft);
+  }
+  .timeline-legend .gradient-bar{
+    flex:1;
+    max-width:220px;
+    height:10px;
+    border-radius:5px;
+    background:linear-gradient(to right, #EDEAE2, var(--accent));
+    border:1px solid var(--line);
+  }
+
+  .segments-block{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px 22px;
+    max-width:1150px;
+  }
+  .segments-block h3{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:15px;
+    margin:0 0 14px;
+  }
+  table.segments-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+  }
+  table.segments-table th{
+    text-align:left;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    color:var(--ink-soft);
+    font-weight:700;
+    padding:6px 10px;
+    border-bottom:1px solid var(--line);
+  }
+  table.segments-table td{
+    padding:9px 10px;
+    border-bottom:1px solid var(--line);
+    vertical-align:top;
+  }
+  table.segments-table td.num{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600;
+    color:var(--accent);
+  }
+  .who-chip{
+    display:inline-block;
+    font-size:11px;
+    font-weight:600;
+    padding:2px 8px;
+    border-radius:10px;
+    margin:1px 3px 1px 0;
+  }
+  .empty-overview{
+    font-size:13px;
+    color:var(--ink-soft);
+    font-style:italic;
+  }
+
+  @media (max-width:1300px){
+    .months-grid{ grid-template-columns: 1fr; max-width:1150px; }
+  }
+
+  @media (max-width:900px){
+    .app{grid-template-columns:1fr;}
+    .sidebar{position:static; height:auto; border-right:none; border-bottom:1px solid var(--line);}
+    .main{padding:22px 16px 50px;}
+    .overview-stats{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <h1>Departure Register</h1>
+      <div class="brand-sub">International project · Aug 2026 – May 2027</div>
+    </div>
+
+    <form id="personForm">
+      <div class="field">
+        <label for="pname">Person name</label>
+        <input type="text" id="pname" placeholder="e.g. Jane Doe" required>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="pstart">Departure</label>
+          <input type="date" id="pstart" min="2026-08-01" max="2027-05-31" required>
+        </div>
+        <div class="field">
+          <label for="pend">Return</label>
+          <input type="date" id="pend" min="2026-08-01" max="2027-05-31" required>
+        </div>
+      </div>
+      <div class="field">
+        <label>Color</label>
+        <div class="swatch-row" id="addColorPicker"></div>
+      </div>
+      <div class="duration-badge" id="durationBadge" hidden></div>
+      <div class="error-msg" id="errorMsg"></div>
+      <button type="submit" class="btn-add">+ Add to calendar</button>
+    </form>
+
+    <div class="list-header">
+      <div class="list-title">People away</div>
+      <button type="button" class="btn-reset" id="resetBtn">Reset</button>
+    </div>
+    <div class="people-list" id="peopleList">
+      <div class="empty-note">No one added yet.</div>
+    </div>
+
+    <div class="legend-note">
+      <div class="legend-row"><div class="legend-swatch"></div> Friday &amp; Saturday — non-working days</div>
+      <div class="legend-row"><div class="legend-swatch holiday"></div> Jewish holidays (5787 · 2026–2027)</div>
+    </div>
+    <div class="save-note" id="saveNote">Auto-saves.</div>
+  </aside>
+
+  <main class="main">
+    <div class="main-header">
+      <div class="tabs">
+        <button type="button" class="tab-btn active" data-tab="calendar">Calendar</button>
+        <button type="button" class="tab-btn" data-tab="overview">Overview</button>
+      </div>
+      <span class="count-label" id="peopleCount">0 people away</span>
+    </div>
+
+    <div id="calendarPanel">
+      <div class="months-grid" id="monthsGrid"></div>
+    </div>
+
+    <div id="overviewPanel" style="display:none;">
+      <div class="overview-stats" id="overviewStats"></div>
+      <div class="timeline-block">
+        <h3>Concurrent travelers over time</h3>
+        <div class="timeline-bar" id="timelineBar"></div>
+        <div class="timeline-scale" id="timelineScale"></div>
+        <div class="timeline-legend">
+          <span>0</span>
+          <div class="gradient-bar"></div>
+          <span id="timelineMaxLabel">max</span>
+        </div>
+      </div>
+      <div class="segments-block">
+        <h3>People traveling, by period</h3>
+        <div id="segmentsWrap"></div>
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<script>
+const WEEKDAY_LABELS = ['Mo','Tu','We','Th','Fr','Sa','Su'];
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const COLOR_PALETTE = [
+  {bg:'#E4572E', text:'#fff'},
+  {bg:'#2E86AB', text:'#fff'},
+  {bg:'#6A4C93', text:'#fff'},
+  {bg:'#1B998B', text:'#fff'},
+  {bg:'#D08C1D', text:'#1B2430'},
+  {bg:'#B4436C', text:'#fff'},
+  {bg:'#5B8C5A', text:'#fff'},
+  {bg:'#3D5A80', text:'#fff'},
+  {bg:'#C1121F', text:'#fff'},
+  {bg:'#8AA324', text:'#1B2430'},
+  {bg:'#7B5EA7', text:'#fff'},
+  {bg:'#0F7173', text:'#fff'},
+];
+const MAX_LANES = 4;
+const RANGE_START = '2026-08-01';
+const RANGE_END = '2027-05-31';
+
+const HOLIDAYS = [
+  {name:'Rosh Hashana', start:'2026-09-11', end:'2026-09-13'},
+  {name:'Yom Kippur', start:'2026-09-20', end:'2026-09-21'},
+  {name:'Sukkot', start:'2026-09-25', end:'2026-09-27'},
+  {name:'Sukkot', start:'2026-09-28', end:'2026-10-02'},
+  {name:'Shmini Atzeret', start:'2026-10-02', end:'2026-10-03'},
+  {name:'Simchat Torah', start:'2026-10-03', end:'2026-10-04'},
+  {name:'Chanukah', start:'2026-12-04', end:'2026-12-12'},
+  {name:'Purim', start:'2027-03-22', end:'2027-03-23'},
+  {name:'Pesach', start:'2027-04-21', end:'2027-04-23'},
+  {name:'Pesach', start:'2027-04-24', end:'2027-04-27'},
+  {name:'Pesach', start:'2027-04-27', end:'2027-04-29'},
+  {name:'Shavuot', start:'2027-06-10', end:'2027-06-12'},
+  {name:"Tish'a B'Av", start:'2027-08-11', end:'2027-08-12'}
+];
+
+let people = [];
+let colorCursor = 0;
+let selectedAddColor = COLOR_PALETTE[0];
+let editingId = null;
+let activeTab = 'calendar';
+const STORAGE_KEY = 'people-list';
+
+const hasClaudeStorage = () => (typeof window.storage !== 'undefined' && window.storage && typeof window.storage.get === 'function');
+
+async function storageGet(key){
+  if(hasClaudeStorage()){
+    try{
+      const res = await window.storage.get(key, false);
+      return res ? res.value : null;
+    }catch(e){ return null; }
+  }
+  try{ return window.localStorage.getItem(key); }catch(e){ return null; }
+}
+
+async function storageSet(key, value){
+  if(hasClaudeStorage()){
+    try{ await window.storage.set(key, value, false); return true; }catch(e){ return false; }
+  }
+  try{ window.localStorage.setItem(key, value); return true; }catch(e){ return false; }
+}
+
+async function loadPeople(){
+  const raw = await storageGet(STORAGE_KEY);
+  if(raw){
+    try{
+      people = JSON.parse(raw);
+      colorCursor = people.length;
+    }catch(e){ people = []; }
+  }
+  selectedAddColor = COLOR_PALETTE[colorCursor % COLOR_PALETTE.length];
+  renderAddColorPicker();
+  renderAll();
+}
+
+async function savePeople(){
+  await storageSet(STORAGE_KEY, JSON.stringify(people));
+  const note = document.getElementById('saveNote');
+  note.textContent = 'Saved · ' + new Date().toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
+  setTimeout(()=>{ note.textContent = 'Auto-saves.'; }, 2200);
+}
+
+function fmtDate(d){
+  return d.toLocaleDateString('en-US', {day:'2-digit', month:'2-digit', year:'numeric'});
+}
+function fmtShort(d){
+  return d.toLocaleDateString('en-US', {day:'numeric', month:'short'});
+}
+
+function parseISO(s){
+  const [y,m,d] = s.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+
+function toISO(d){
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function addDays(d, n){
+  const copy = new Date(d);
+  copy.setDate(copy.getDate()+n);
+  return copy;
+}
+
+function durationDays(p){
+  return Math.round((parseISO(p.end) - parseISO(p.start)) / 86400000) + 1;
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// --- TABS ---
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    activeTab = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+    document.getElementById('calendarPanel').style.display = activeTab === 'calendar' ? '' : 'none';
+    document.getElementById('overviewPanel').style.display = activeTab === 'overview' ? '' : 'none';
+    if(activeTab === 'overview') renderOverview();
+  });
+});
+
+// --- COLOR SWATCH PICKER ---
+function buildSwatchRow(selectedBg, onPick){
+  const row = document.createElement('div');
+  row.className = 'swatch-row';
+  COLOR_PALETTE.forEach(c => {
+    const sw = document.createElement('button');
+    sw.type = 'button';
+    sw.className = 'swatch-btn' + (c.bg === selectedBg ? ' selected' : '');
+    sw.style.background = c.bg;
+    sw.title = c.bg;
+    sw.addEventListener('click', () => {
+      row.querySelectorAll('.swatch-btn').forEach(el=>el.classList.remove('selected'));
+      sw.classList.add('selected');
+      onPick(c);
+    });
+    row.appendChild(sw);
+  });
+  return row;
+}
+
+function renderAddColorPicker(){
+  const container = document.getElementById('addColorPicker');
+  container.innerHTML = '';
+  container.appendChild(buildSwatchRow(selectedAddColor.bg, (c)=>{ selectedAddColor = c; }));
+}
+
+// --- DURATION BADGE (add form) ---
+function updateDurationBadge(){
+  const startVal = document.getElementById('pstart').value;
+  const endVal = document.getElementById('pend').value;
+  const badge = document.getElementById('durationBadge');
+  const pendInput = document.getElementById('pend');
+
+  if(!startVal || !endVal){
+    badge.hidden = true;
+    pendInput.removeAttribute('title');
+    return;
+  }
+
+  const start = parseISO(startVal);
+  const end = parseISO(endVal);
+  const diffDays = Math.round((end - start) / 86400000) + 1;
+
+  if(diffDays < 1){
+    badge.hidden = false;
+    badge.classList.add('warn');
+    badge.textContent = '⚠ Return date is before departure';
+    pendInput.title = 'Return date is before departure';
+    return;
+  }
+
+  badge.classList.remove('warn');
+  badge.hidden = false;
+  const label = diffDays === 1 ? '1 day away' : (diffDays + ' days away');
+  badge.textContent = '📅 ' + label;
+  pendInput.title = label;
+}
+
+document.getElementById('pstart').addEventListener('input', updateDurationBadge);
+document.getElementById('pend').addEventListener('input', updateDurationBadge);
+document.getElementById('pend').addEventListener('change', updateDurationBadge);
+
+// --- FORM: ADD ---
+document.getElementById('personForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const name = document.getElementById('pname').value.trim();
+  const startVal = document.getElementById('pstart').value;
+  const endVal = document.getElementById('pend').value;
+  const errorBox = document.getElementById('errorMsg');
+  errorBox.style.display = 'none';
+
+  if(!name || !startVal || !endVal){
+    errorBox.textContent = 'Please fill in the name and both dates.';
+    errorBox.style.display = 'block';
+    return;
+  }
+  const start = parseISO(startVal);
+  const end = parseISO(endVal);
+  if(end < start){
+    errorBox.textContent = 'Return date cannot be before departure date.';
+    errorBox.style.display = 'block';
+    return;
+  }
+
+  people.push({
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+    name, start: startVal, end: endVal,
+    colorBg: selectedAddColor.bg, colorText: selectedAddColor.text
+  });
+
+  document.getElementById('personForm').reset();
+  updateDurationBadge();
+  colorCursor++;
+  selectedAddColor = COLOR_PALETTE[colorCursor % COLOR_PALETTE.length];
+  renderAddColorPicker();
+
+  await savePeople();
+  renderAll();
+});
+
+document.getElementById('resetBtn').addEventListener('click', async function(){
+  if(people.length === 0) return;
+  const ok = window.confirm('Remove everyone from the register? This cannot be undone.');
+  if(!ok) return;
+  people = [];
+  colorCursor = 0;
+  editingId = null;
+  await savePeople();
+  renderAll();
+});
+
+async function deletePerson(id){
+  people = people.filter(p => p.id !== id);
+  if(editingId === id) editingId = null;
+  await savePeople();
+  renderAll();
+}
+
+function startEdit(id){
+  editingId = id;
+  renderPeopleList();
+}
+
+function cancelEdit(){
+  editingId = null;
+  renderPeopleList();
+}
+
+async function saveEdit(id, card){
+  const nameInput = card.querySelector('.edit-name');
+  const startInput = card.querySelector('.edit-start');
+  const endInput = card.querySelector('.edit-end');
+  const errBox = card.querySelector('.edit-error');
+
+  const name = nameInput.value.trim();
+  const startVal = startInput.value;
+  const endVal = endInput.value;
+
+  errBox.textContent = '';
+  if(!name || !startVal || !endVal){
+    errBox.textContent = 'Please fill in the name and both dates.';
+    return;
+  }
+  if(parseISO(endVal) < parseISO(startVal)){
+    errBox.textContent = 'Return date cannot be before departure date.';
+    return;
+  }
+
+  const idx = people.findIndex(p => p.id === id);
+  if(idx === -1) return;
+
+  people[idx] = {
+    ...people[idx],
+    name,
+    start: startVal,
+    end: endVal,
+    colorBg: card._selectedColor.bg,
+    colorText: card._selectedColor.text
+  };
+
+  editingId = null;
+  await savePeople();
+  renderAll();
+}
+
+function renderPeopleList(){
+  const list = document.getElementById('peopleList');
+  const countEl = document.getElementById('peopleCount');
+  countEl.textContent = people.length + (people.length === 1 ? ' person away' : ' people away');
+
+  if(people.length === 0){
+    list.innerHTML = '<div class="empty-note">No one added yet.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  people.slice().sort((a,b)=> a.start.localeCompare(b.start)).forEach(p => {
+    if(editingId === p.id){
+      list.appendChild(buildEditCard(p));
+    } else {
+      const days = durationDays(p);
+      const card = document.createElement('div');
+      card.className = 'person-card';
+      card.innerHTML = `
+        <div class="swatch" style="background:${p.colorBg}"></div>
+        <div class="person-info">
+          <div class="person-name">${escapeHtml(p.name)}</div>
+          <div class="person-dates">${fmtDate(parseISO(p.start))} → ${fmtDate(parseISO(p.end))} · <span class="person-days">${days} ${days===1?'day':'days'}</span></div>
+        </div>
+        <div class="card-actions">
+          <button class="icon-btn edit-btn" title="Edit" data-id="${p.id}">✎</button>
+          <button class="icon-btn del-btn" title="Delete" data-id="${p.id}">×</button>
+        </div>
+      `;
+      list.appendChild(card);
+    }
+  });
+
+  list.querySelectorAll('.del-btn').forEach(btn => {
+    btn.addEventListener('click', () => deletePerson(btn.dataset.id));
+  });
+  list.querySelectorAll('.edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => startEdit(btn.dataset.id));
+  });
+}
+
+function buildEditCard(p){
+  const card = document.createElement('div');
+  card.className = 'person-card editing';
+  card._selectedColor = {bg: p.colorBg, text: p.colorText};
+
+  const nameField = document.createElement('div');
+  nameField.innerHTML = '<div class="edit-label">Name</div>';
+  const nameInput = document.createElement('input');
+  nameInput.type = 'text';
+  nameInput.className = 'edit-name';
+  nameInput.value = p.name;
+  nameField.appendChild(nameInput);
+  card.appendChild(nameField);
+
+  const datesField = document.createElement('div');
+  datesField.className = 'row2';
+  const startWrap = document.createElement('div');
+  startWrap.innerHTML = '<div class="edit-label">Departure</div>';
+  const startInput = document.createElement('input');
+  startInput.type = 'date';
+  startInput.className = 'edit-start';
+  startInput.min = RANGE_START;
+  startInput.max = RANGE_END;
+  startInput.value = p.start;
+  startWrap.appendChild(startInput);
+  const endWrap = document.createElement('div');
+  endWrap.innerHTML = '<div class="edit-label">Return</div>';
+  const endInput = document.createElement('input');
+  endInput.type = 'date';
+  endInput.className = 'edit-end';
+  endInput.min = RANGE_START;
+  endInput.max = RANGE_END;
+  endInput.value = p.end;
+  endWrap.appendChild(endInput);
+  datesField.appendChild(startWrap);
+  datesField.appendChild(endWrap);
+  card.appendChild(datesField);
+
+  const colorField = document.createElement('div');
+  colorField.innerHTML = '<div class="edit-label">Color</div>';
+  const swatchRow = buildSwatchRow(p.colorBg, (c) => { card._selectedColor = c; });
+  colorField.appendChild(swatchRow);
+  card.appendChild(colorField);
+
+  const errBox = document.createElement('div');
+  errBox.className = 'edit-error';
+  card.appendChild(errBox);
+
+  const actions = document.createElement('div');
+  actions.className = 'edit-actions';
+  const cancelBtn = document.createElement('button');
+  cancelBtn.type = 'button';
+  cancelBtn.className = 'btn-cancel-edit';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.addEventListener('click', cancelEdit);
+  const saveBtn = document.createElement('button');
+  saveBtn.type = 'button';
+  saveBtn.className = 'btn-save-edit';
+  saveBtn.textContent = 'Save';
+  saveBtn.addEventListener('click', () => saveEdit(p.id, card));
+  actions.appendChild(cancelBtn);
+  actions.appendChild(saveBtn);
+  card.appendChild(actions);
+
+  return card;
+}
+
+function buildMonthsRange(){
+  const months = [];
+  let y = 2026, m = 7;
+  for(let i=0;i<10;i++){
+    months.push({year:y, month:m});
+    m++;
+    if(m>11){ m=0; y++; }
+  }
+  return months;
+}
+
+function buildWeeks(year, month){
+  const firstOfMonth = new Date(year, month, 1);
+  const lastOfMonth = new Date(year, month+1, 0);
+  const leadOffset = (firstOfMonth.getDay() + 6) % 7;
+  const gridStart = addDays(firstOfMonth, -leadOffset);
+  const trailOffset = (7 - ((lastOfMonth.getDay()+6)%7 + 1)) % 7;
+  const gridEnd = addDays(lastOfMonth, trailOffset);
+
+  const weeks = [];
+  let cursor = gridStart;
+  while(cursor <= gridEnd){
+    const week = [];
+    for(let i=0;i<7;i++){
+      week.push(addDays(cursor, i));
+    }
+    weeks.push(week);
+    cursor = addDays(cursor, 7);
+  }
+  return weeks;
+}
+
+function assignLanes(events){
+  const laneEnds = [];
+  const sorted = events.slice().sort((a,b)=> a.startCol - b.startCol || a.endCol - b.endCol);
+  sorted.forEach(ev => {
+    let placed = false;
+    for(let l=0; l<laneEnds.length; l++){
+      if(laneEnds[l] < ev.startCol){
+        ev.lane = l;
+        laneEnds[l] = ev.endCol;
+        placed = true;
+        break;
+      }
+    }
+    if(!placed){
+      ev.lane = laneEnds.length;
+      laneEnds.push(ev.endCol);
+    }
+  });
+  return sorted;
+}
+
+function computeWeekEvents(items, week){
+  const weekStartISO = toISO(week[0]);
+  const weekEndISO = toISO(week[6]);
+  const overlapping = items.filter(it => it.start <= weekEndISO && it.end >= weekStartISO);
+
+  const events = overlapping.map(it => {
+    let startCol = 0, endCol = 6;
+    for(let i=0;i<7;i++){
+      if(toISO(week[i]) >= it.start){ startCol = i; break; }
+      startCol = 0;
+    }
+    for(let i=6;i>=0;i--){
+      if(toISO(week[i]) <= it.end){ endCol = i; break; }
+      endCol = 6;
+    }
+    return {
+      item: it,
+      startCol,
+      endCol,
+      openLeft: it.start < weekStartISO,
+      openRight: it.end > weekEndISO
+    };
+  });
+
+  return assignLanes(events);
+}
+
+function renderCalendar(){
+  const grid = document.getElementById('monthsGrid');
+  grid.innerHTML = '';
+  const months = buildMonthsRange();
+  const today = new Date();
+  const todayISO = toISO(today);
+
+  months.forEach(({year, month}) => {
+    const card = document.createElement('div');
+    card.className = 'month-card';
+
+    const title = document.createElement('div');
+    title.className = 'month-title';
+    title.innerHTML = `<span>${MONTH_NAMES[month]}</span><small>${year}</small>`;
+    card.appendChild(title);
+
+    const weekdaysRow = document.createElement('div');
+    weekdaysRow.className = 'weekdays';
+    WEEKDAY_LABELS.forEach(w => {
+      const el = document.createElement('div');
+      el.textContent = w;
+      weekdaysRow.appendChild(el);
+    });
+    card.appendChild(weekdaysRow);
+
+    const weeks = buildWeeks(year, month);
+
+    weeks.forEach(week => {
+      const weekRow = document.createElement('div');
+      weekRow.className = 'week-row';
+
+      const underlay = document.createElement('div');
+      underlay.className = 'weekend-underlay';
+      week.forEach(d => {
+        const col = document.createElement('div');
+        const dow = (d.getDay()+6)%7;
+        col.className = 'col' + ((dow===4 || dow===5) ? ' weekend' : '');
+        underlay.appendChild(col);
+      });
+      weekRow.appendChild(underlay);
+
+      const dateRow = document.createElement('div');
+      dateRow.className = 'date-row';
+      week.forEach(d => {
+        const cell = document.createElement('div');
+        const outside = d.getMonth() !== month;
+        const iso = toISO(d);
+        cell.className = 'date-cell' + (outside ? ' outside' : '') + (iso===todayISO ? ' today' : '');
+        cell.innerHTML = (iso===todayISO) ? `<span>${d.getDate()}</span>` : d.getDate();
+        dateRow.appendChild(cell);
+      });
+      weekRow.appendChild(dateRow);
+
+      const holidayLaned = computeWeekEvents(HOLIDAYS, week);
+      if(holidayLaned.length){
+        const holidayArea = document.createElement('div');
+        holidayArea.className = 'holiday-area';
+        holidayLaned.forEach(ev => {
+          const bar = document.createElement('div');
+          bar.className = 'holiday-bar' + (ev.openLeft ? ' open-left' : ' cap-left') + (ev.openRight ? ' open-right' : ' cap-right');
+          bar.style.gridColumn = (ev.startCol+1) + ' / ' + (ev.endCol+2);
+          bar.style.gridRow = (ev.lane+1);
+          bar.textContent = '✡ ' + ev.item.name;
+          bar.title = ev.item.name + ' · ' + fmtDate(parseISO(ev.item.start)) + ' → ' + fmtDate(parseISO(ev.item.end));
+          holidayArea.appendChild(bar);
+        });
+        weekRow.appendChild(holidayArea);
+      }
+
+      const laned = computeWeekEvents(people, week);
+      const eventsArea = document.createElement('div');
+      eventsArea.className = 'events-area';
+
+      const visible = laned.filter(ev => ev.lane < MAX_LANES);
+      const hiddenCount = laned.length - visible.length;
+
+      visible.forEach(ev => {
+        const bar = document.createElement('div');
+        bar.className = 'event-bar' + (ev.openLeft ? ' open-left' : ' cap-left') + (ev.openRight ? ' open-right' : ' cap-right');
+        bar.style.gridColumn = (ev.startCol+1) + ' / ' + (ev.endCol+2);
+        bar.style.gridRow = (ev.lane+1);
+        bar.style.background = ev.item.colorBg;
+        bar.style.color = ev.item.colorText;
+        bar.textContent = ev.item.name;
+        bar.title = ev.item.name + ' · ' + fmtDate(parseISO(ev.item.start)) + ' → ' + fmtDate(parseISO(ev.item.end));
+        eventsArea.appendChild(bar);
+      });
+
+      if(hiddenCount > 0){
+        const more = document.createElement('div');
+        more.className = 'event-more';
+        more.style.gridColumn = '1 / 8';
+        more.style.gridRow = (MAX_LANES+1);
+        more.textContent = '+' + hiddenCount + ' more';
+        more.title = laned.filter(ev=>ev.lane>=MAX_LANES).map(ev=>ev.item.name).join(', ');
+        eventsArea.appendChild(more);
+      }
+
+      weekRow.appendChild(eventsArea);
+      card.appendChild(weekRow);
+    });
+
+    grid.appendChild(card);
+  });
+}
+
+// --- OVERVIEW TAB: sweep-line headcount segments across the full registry range ---
+function buildFullTimeline(){
+  const rangeStartISO = RANGE_START;
+  const rangeEndExclusiveISO = toISO(addDays(parseISO(RANGE_END), 1));
+
+  const boundarySet = new Set([rangeStartISO, rangeEndExclusiveISO]);
+  people.forEach(p => {
+    if(p.start >= rangeStartISO && p.start <= rangeEndExclusiveISO) boundarySet.add(p.start);
+    const endBoundary = toISO(addDays(parseISO(p.end), 1));
+    if(endBoundary >= rangeStartISO && endBoundary <= rangeEndExclusiveISO) boundarySet.add(endBoundary);
+  });
+
+  const boundaries = Array.from(boundarySet)
+    .filter(b => b >= rangeStartISO && b <= rangeEndExclusiveISO)
+    .sort();
+
+  const segments = [];
+  for(let i=0;i<boundaries.length-1;i++){
+    const segStart = boundaries[i];
+    const segEndExclusive = boundaries[i+1];
+    const segEndInclusive = toISO(addDays(parseISO(segEndExclusive), -1));
+    const active = people.filter(p => p.start <= segStart && p.end >= segStart);
+    const days = Math.round((parseISO(segEndExclusive) - parseISO(segStart)) / 86400000);
+    if(days > 0){
+      segments.push({start: segStart, end: segEndInclusive, count: active.length, people: active, days});
+    }
+  }
+  return segments;
+}
+
+function colorForCount(count, maxCount){
+  if(count === 0 || maxCount === 0) return {bg:'#EDEAE2', text:'#8A857A'};
+  const t = count / maxCount;
+  const alpha = (0.28 + 0.72*t).toFixed(2);
+  const text = t > 0.55 ? '#fff' : '#1B2430';
+  return {bg: `rgba(35,90,99,${alpha})`, text};
+}
+
+function renderOverview(){
+  const segments = buildFullTimeline();
+  const totalRangeDays = Math.round((parseISO(RANGE_END) - parseISO(RANGE_START)) / 86400000) + 1;
+  const maxCount = segments.reduce((m,s)=>Math.max(m,s.count), 0);
+
+  // --- Stats cards ---
+  const statsBox = document.getElementById('overviewStats');
+  if(people.length === 0){
+    statsBox.innerHTML = '<div class="empty-overview">Add people to the register to see travel statistics here.</div>';
+  } else {
+    const totalTravelDays = people.reduce((sum,p)=> sum + durationDays(p), 0);
+    let peakSeg = segments.reduce((best,s)=> (!best || s.count > best.count) ? s : best, null);
+
+    statsBox.innerHTML = `
+      <div class="stat-card">
+        <div class="stat-label">Peak concurrent travelers</div>
+        <div class="stat-value">${peakSeg ? peakSeg.count : 0}</div>
+        <div class="stat-sub">${peakSeg ? (fmtShort(parseISO(peakSeg.start)) + ' – ' + fmtShort(parseISO(peakSeg.end)) + ', ' + parseISO(peakSeg.end).getFullYear()) : '—'}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total people registered</div>
+        <div class="stat-value">${people.length}</div>
+        <div class="stat-sub">across the full period</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total travel-days</div>
+        <div class="stat-value">${totalTravelDays}</div>
+        <div class="stat-sub">sum of all individual trips</div>
+      </div>
+    `;
+  }
+
+  // --- Timeline bar ---
+  const timelineBar = document.getElementById('timelineBar');
+  timelineBar.innerHTML = '';
+  if(segments.length === 0){
+    timelineBar.innerHTML = '<div class="timeline-seg" style="flex:1;background:#EDEAE2;color:#8A857A;">No data yet</div>';
+  } else {
+    segments.forEach(s => {
+      const {bg, text} = colorForCount(s.count, maxCount);
+      const seg = document.createElement('div');
+      seg.className = 'timeline-seg';
+      seg.style.flex = s.days + ' 0 0';
+      seg.style.background = bg;
+      seg.style.color = text;
+      const widthPct = (s.days/totalRangeDays)*100;
+      seg.textContent = (s.count > 0 && widthPct > 2.2) ? s.count : '';
+      seg.title = s.count + (s.count===1?' person':' people') + ' · ' + fmtShort(parseISO(s.start)) + ' – ' + fmtShort(parseISO(s.end)) + (s.count>0 ? (' · ' + s.people.map(p=>p.name).join(', ')) : '');
+      timelineBar.appendChild(seg);
+    });
+  }
+  document.getElementById('timelineMaxLabel').textContent = maxCount + ' at once';
+
+  // --- Month ticks under the timeline, proportional to days-in-month ---
+  const scaleBox = document.getElementById('timelineScale');
+  scaleBox.innerHTML = '';
+  buildMonthsRange().forEach(({year, month}) => {
+    const daysInMonth = new Date(year, month+1, 0).getDate();
+    const tick = document.createElement('div');
+    tick.className = 'tick';
+    tick.style.flex = daysInMonth + ' 0 0';
+    tick.textContent = MONTH_NAMES[month].slice(0,3) + " '" + String(year).slice(2);
+    scaleBox.appendChild(tick);
+  });
+
+  // --- Segments table (only periods with travelers) ---
+  const wrap = document.getElementById('segmentsWrap');
+  const withPeople = segments.filter(s => s.count > 0);
+  if(withPeople.length === 0){
+    wrap.innerHTML = '<div class="empty-overview">No one is currently registered as traveling.</div>';
+    return;
+  }
+  const rows = withPeople.map(s => {
+    const chips = s.people.map(p => `<span class="who-chip" style="background:${p.colorBg};color:${p.colorText}">${escapeHtml(p.name)}</span>`).join('');
+    return `<tr>
+      <td>${fmtDate(parseISO(s.start))} → ${fmtDate(parseISO(s.end))}</td>
+      <td class="num">${s.days}</td>
+      <td class="num">${s.count}</td>
+      <td>${chips}</td>
+    </tr>`;
+  }).join('');
+
+  wrap.innerHTML = `
+    <table class="segments-table">
+      <thead><tr><th>Period</th><th>Days</th><th># People</th><th>Who</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+function renderAll(){
+  renderPeopleList();
+  renderCalendar();
+  if(activeTab === 'overview') renderOverview();
+}
+
+loadPeople();
+</script>
+</body>
+</html>
