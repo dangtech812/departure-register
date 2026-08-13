@@ -682,10 +682,87 @@
     .main{padding:22px 16px 50px;}
     .overview-stats{grid-template-columns:1fr;}
   }
+
+  .lock-screen{
+    position:fixed;
+    inset:0;
+    background:var(--ink);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:1000;
+  }
+  .lock-card{
+    background:var(--panel);
+    color:var(--ink);
+    border-radius:var(--radius);
+    padding:32px 30px;
+    width:320px;
+    max-width:90vw;
+    text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,0.35);
+  }
+  .lock-card h2{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:18px;
+    margin:0 0 6px;
+  }
+  .lock-card p{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin:0 0 18px;
+  }
+  .lock-card input{
+    width:100%;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:14px;
+    padding:10px 12px;
+    border:1px solid var(--line);
+    border-radius:6px;
+    margin-bottom:10px;
+    text-align:center;
+  }
+  .lock-card input:focus{
+    outline:2px solid var(--accent);
+    outline-offset:1px;
+  }
+  .lock-card button{
+    width:100%;
+    background:var(--ink);
+    color:#fff;
+    border:none;
+    border-radius:6px;
+    padding:10px 14px;
+    font-weight:600;
+    font-size:13.5px;
+    cursor:pointer;
+  }
+  .lock-card button:hover{ background:var(--accent); }
+  .lock-error{
+    font-size:12px;
+    color:var(--danger);
+    font-weight:500;
+    margin-top:10px;
+    display:none;
+  }
+  .app{ display:none; }
+  .app.unlocked{ display:grid; }
 </style>
 </head>
 <body>
-<div class="app">
+
+<div class="lock-screen" id="lockScreen">
+  <div class="lock-card">
+    <h2>🔒 Departure Register</h2>
+    <p>This page is password protected.</p>
+    <input type="password" id="lockPassword" placeholder="Enter password" autofocus>
+    <button type="button" id="lockSubmit">Unlock</button>
+    <div class="lock-error" id="lockError">Incorrect password. Try again.</div>
+  </div>
+</div>
+
+<div class="app" id="app">
 
   <aside class="sidebar">
     <div class="brand">
@@ -767,6 +844,35 @@
 </div>
 
 <script>
+// --- PASSWORD GATE ---
+// NOTE: this is a soft lock only. Anyone can view-source this file and read
+// the password below. Do not rely on this for sensitive data.
+const SITE_PASSWORD = "GenTech"; // <-- change this to whatever you like
+
+function tryUnlock(){
+  const input = document.getElementById('lockPassword');
+  const err = document.getElementById('lockError');
+  if(input.value === SITE_PASSWORD){
+    sessionStorage.setItem('registerUnlocked', 'yes');
+    document.getElementById('lockScreen').style.display = 'none';
+    document.getElementById('app').classList.add('unlocked');
+  } else {
+    err.style.display = 'block';
+    input.value = '';
+    input.focus();
+  }
+}
+
+document.getElementById('lockSubmit').addEventListener('click', tryUnlock);
+document.getElementById('lockPassword').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter') tryUnlock();
+});
+
+if(sessionStorage.getItem('registerUnlocked') === 'yes'){
+  document.getElementById('lockScreen').style.display = 'none';
+  document.getElementById('app').classList.add('unlocked');
+}
+
 const WEEKDAY_LABELS = ['Mo','Tu','We','Th','Fr','Sa','Su'];
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const COLOR_PALETTE = [
