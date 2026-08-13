@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Departure Register — August 2026 · May 2027</title>
+<title>Departure Register — August 2026 · December 2027</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -411,13 +411,25 @@
     font-weight:700;
     color:var(--ink-soft);
     text-align:center;
-    margin-bottom:6px;
+    margin-bottom:0;
+    padding-bottom:6px;
+    border-bottom:1px solid var(--line);
     letter-spacing:.04em;
   }
 
+  .weeks-frame{
+    border:1px solid var(--line);
+    border-radius:8px;
+    overflow:hidden;
+    padding:0 2px;
+  }
   .week-row{
     position:relative;
-    margin-bottom:4px;
+    padding-top:5px;
+    padding-bottom:5px;
+  }
+  .week-row + .week-row{
+    border-top:1px solid var(--line);
   }
   .weekend-underlay{
     position:absolute;
@@ -425,11 +437,14 @@
     display:grid;
     grid-template-columns:repeat(7,1fr);
     z-index:0;
-    border-radius:6px;
     overflow:hidden;
   }
   .weekend-underlay .col{
     height:100%;
+    border-right:1px solid var(--line);
+  }
+  .weekend-underlay .col:last-child{
+    border-right:none;
   }
   .weekend-underlay .col.weekend{
     background:repeating-linear-gradient(135deg, var(--weekend-line) 0 3px, var(--weekend) 3px 7px);
@@ -770,7 +785,7 @@
   <aside class="sidebar">
     <div class="brand">
       <h1>Departure Register</h1>
-      <div class="brand-sub">International project · Aug 2026 – May 2027</div>
+      <div class="brand-sub">International project · Aug 2026 – Dec 2027</div>
     </div>
 
     <form id="personForm">
@@ -781,11 +796,11 @@
       <div class="row2">
         <div class="field">
           <label for="pstart">Departure</label>
-          <input type="date" id="pstart" min="2026-08-01" max="2027-05-31" required>
+          <input type="date" id="pstart" min="2026-08-01" max="2027-12-31" required>
         </div>
         <div class="field">
           <label for="pend">Return</label>
-          <input type="date" id="pend" min="2026-08-01" max="2027-05-31" required>
+          <input type="date" id="pend" min="2026-08-01" max="2027-12-31" required>
         </div>
       </div>
       <div class="field">
@@ -894,7 +909,7 @@ const COLOR_PALETTE = [
 ];
 const MAX_LANES = 4;
 const RANGE_START = '2026-08-01';
-const RANGE_END = '2027-05-31';
+const RANGE_END = '2027-12-31';
 
 const HOLIDAYS = [
   {name:'Rosh Hashana', start:'2026-09-11', end:'2026-09-13'},
@@ -1312,7 +1327,7 @@ function buildEditCard(p){
 function buildMonthsRange(){
   const months = [];
   let y = 2026, m = 7;
-  for(let i=0;i<10;i++){
+  for(let i=0;i<17;i++){
     months.push({year:y, month:m});
     m++;
     if(m>11){ m=0; y++; }
@@ -1414,6 +1429,9 @@ function renderCalendar(){
     });
     card.appendChild(weekdaysRow);
 
+    const weeksFrame = document.createElement('div');
+    weeksFrame.className = 'weeks-frame';
+
     const weeks = buildWeeks(year, month);
 
     weeks.forEach(week => {
@@ -1488,8 +1506,10 @@ function renderCalendar(){
       }
 
       weekRow.appendChild(eventsArea);
-      card.appendChild(weekRow);
+      weeksFrame.appendChild(weekRow);
     });
+
+    card.appendChild(weeksFrame);
 
     grid.appendChild(card);
   });
